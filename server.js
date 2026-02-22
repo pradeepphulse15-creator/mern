@@ -8,6 +8,8 @@ import mongoose from "mongoose";
 import { body, validationResult } from "express-validator";
 import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
 
 //middlewares
 import errorHandlerMiddleware from "./middleware/errorhandlerMiddleware.js";
@@ -40,6 +42,8 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.static(path.resolve(__dirname, "./client/dist")));
 app.use(cookieParser());
 app.use(express.json());
+app.use(helmet());
+app.use(mongoSanitize());
 
 app.get("/api/v1/test", (req, res) => {
   console.log("test route hit");

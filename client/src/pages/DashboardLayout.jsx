@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, redirect, useLoaderData, useNavigate } from "react-router-dom";
 import Wrapper from "../assets/wrappers/Dashboard";
 import { Navbar, SmallSidebar, BigSidebar } from "../components";
@@ -25,6 +25,7 @@ function DashboardLayout(setIsDarkThemeEabled) {
   const navigate = useNavigate();
   const [showSidebar, setShowSidebar] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(checkDefaultTheme());
+  const [isAuthError, setIsAuthError] = useState(false);
 
   const toggleDarkTheme = () => {
     const newDarkTheme = !isDarkTheme;
@@ -44,8 +45,35 @@ function DashboardLayout(setIsDarkThemeEabled) {
     toast.success("Logout successful!");
   };
 
+  customFetch.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (error) => {
+      if (error?.response?.status === 401) {
+        setIsAuthError(true);
+        navigate("/");
+      }
+      return Promise.reject(error);
+    },
+  );
+
+  useEffect(() => {
+    if (!isAuthError) return;
+    logoutUser();
+  }, [isAuthError]);
+
   return (
-    <DashboardContext.Provider value={{ user, isDarkTheme, toggleDarkTheme, showSidebar, toggleSidebar, logoutUser }}>
+    <DashboardContext.Provider
+      value={{
+        user,
+        isDarkTheme,
+        toggleDarkTheme,
+        showSidebar,
+        toggleSidebar,
+        logoutUser,
+      }}
+    >
       <Wrapper>
         <main className="dashboard">
           <SmallSidebar />
